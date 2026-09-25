@@ -128,3 +128,5 @@ public class Wait {
         webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 }
+
+
