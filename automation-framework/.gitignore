@@ -41,3 +41,13 @@ build/
 .idea/misc.xml
 .idea/vcs.xml
 .idea/workspace.xml
+# Maven
+/target/
+
+# IntelliJ
+.idea/
+*.iml
+
+# Credenciales
+.env
+.env.*

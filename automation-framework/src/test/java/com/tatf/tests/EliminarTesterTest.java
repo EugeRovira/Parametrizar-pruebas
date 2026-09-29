@@ -3,15 +3,10 @@ package com.tatf.tests;
 import com.tatf.core.browser.BrowserFactory;
 import com.tatf.core.browser.IBrowser;
 import com.tatf.core.verification.IVerify;
+import com.tatf.pages.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import com.tatf.core.driver.factory.DriverType;
-import com.tatf.core.driver.instance.DriverManagerSingleton;
-import org.openqa.selenium.By;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import java.time.Duration;
 
 public class EliminarTesterTest {
     private static IBrowser browser;
@@ -28,43 +23,37 @@ public class EliminarTesterTest {
 
     @Test
     void EliminarTester() {
-        browser.interaction().navigateTo("http://cestore.ces.com.uy/adminces/");
-        browser.find().css("input[type='password']").write(System.getenv("ADMINCES_PASSWORD"));
-        browser.find().css("button[type='submit']").click();
-        browser.find().link("Registrarse").click();
-        browser.find().css("input[name=inputFirstName]").write("Orianna");
-        browser.find().css("input[name=inputLastName]").write("Castro");
-        browser.find().css("input[name=inputEmail]").write("Orianna@gmail.com");
-        browser.find().css("input[name=inputPassword]").write("1234");
-        browser.find().css("input[name=inputRepeatPassword]").write("1234");
-        browser.find().css("input[name=inputCountry]").write("Uruguay");
-        browser.find().id("btnRegister").click();
+        HomeAdminCESPage homePage = new HomeAdminCESPage(browser);
+        homePage.accederAdminCES(System.getenv("ADMINCES_PASSWORD"));
+        homePage.accederRegistro();
+        RegistroAdminPage registroPage = new RegistroAdminPage(browser);
+        registroPage.FormularioAdmin("Orianna", "Castro",
+                "Orianna@gmail.com", "1234", "1234", "Uruguay");
+        registroPage.enviarForm();
+
         browser.wait("#swal2-html-container").css();
         browser.find().css("button.swal2-confirm").click();
-        browser.find().css("a.dropdown-toggle").click();
-        browser.find().css(".dropdown-menu a[href='/adminces/login']").click();
-        browser.find().css("input[name=inputEmail]").write("Orianna@gmail.com");
-        browser.find().css("input[name=inputPassword]").write("1234");
-        browser.find().css("button.btn-orange-ces.rounded-end-pill").click();
-        browser.find().css("button.swal2-confirm").click();
-        browser.find().css("a#cardLogin[href='/adminces/create-user']").click();
-        browser.find().css("input[name=inputFirstName]").write("Victor");
-        browser.find().css("input[name=inputLastName]").write("Rivero");
-        browser.find().css("input[name=inputEmail]").write("Victor@gmail.com");
-        browser.find().css("select[name='inputCountry']").selectValue("Uruguay");
-        browser.find().css("input[name=inputPassword]").write("1234");
-        browser.find().css("label[for='testerSenior']").click();
-        browser.find().id("btnRegister").click();
+        homePage.accederLogin();
+        LoginAdminPage loginPage = new LoginAdminPage(browser);
+        loginPage.iniciarSesion("Orianna@gmail.com", "1234");
         browser.wait("#swal2-html-container").css();
         browser.find().css("button.swal2-confirm").click();
-        WebDriverWait espera = new WebDriverWait(DriverManagerSingleton.getInstance(DriverType.CHROME).getDriver(), Duration.ofSeconds(10));
-        espera.until(ExpectedConditions.invisibilityOfElementLocated(By.cssSelector(".swal2-container")));
-        browser.find().css("a.nav-link[href='/adminces/view-users']").click();
-        browser.find().id("Victor@gmail.com").click();
-        browser.find().css("button.swal2-confirm").click();
+        CrearTesterPage testerPage = new CrearTesterPage(browser);
+        testerPage.accederCrearTester();
+        testerPage.formularioTester("Victor", "Rivero", "Victor@gmail.com",
+                "Uruguay", "1234");
+        testerPage.elegirTipoTester("Senior");
+        testerPage.enviarForm();
+        browser.wait("#swal2-html-container").css();
+        EliminarTesterPage eliminarPage = new EliminarTesterPage(browser);
+        eliminarPage.accederVerUsuarios();
+        eliminarPage.seleccionarTester("Victor@gmail.com");
+        eliminarPage.confirmarEliminacion();
         browser.wait("#swal2-html-container").css();
         String mensajeObtenido = browser.find().css("#swal2-html-container").getText();
-        IVerify verificador = IVerify.create(); verificador.verify("Usuario eliminado.", mensajeObtenido, "El mensaje no es el esperado");
+        IVerify verificador = IVerify.create();
+        verificador.verify("Usuario eliminado.", mensajeObtenido,
+                "El mensaje no es el esperado");
         browser.find().css("button.swal2-confirm").click();
     }
 }
