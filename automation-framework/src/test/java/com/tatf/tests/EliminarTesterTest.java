@@ -6,7 +6,8 @@ import com.tatf.core.verification.IVerify;
 import com.tatf.pages.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 public class EliminarTesterTest {
     private static IBrowser browser;
@@ -21,8 +22,10 @@ public class EliminarTesterTest {
              BrowserFactory.quitBrowser();
     }
 
-    @Test
-    void EliminarTester() {
+    @ParameterizedTest
+    @CsvFileSource(resources = "/datos_eliminar_tester.csv")
+    void EliminarTester(String nombre, String apellido, String correo,
+                        String pais, String contraseña, String tipoTester) {
         HomeAdminCESPage homePage = new HomeAdminCESPage(browser);
         homePage.accederAdminCES(System.getenv("ADMINCES_PASSWORD"));
         homePage.accederRegistro();
@@ -31,29 +34,37 @@ public class EliminarTesterTest {
                 "Orianna@gmail.com", "1234", "1234", "Uruguay");
         registroPage.enviarForm();
 
-        browser.wait("#swal2-html-container").css();
-        browser.find().css("button.swal2-confirm").click();
+        SweetAlertComponent sweetAlert = new SweetAlertComponent(browser);
+        sweetAlert.obtenerMensaje();
+        sweetAlert.confirmar();
+
         homePage.accederLogin();
         LoginAdminPage loginPage = new LoginAdminPage(browser);
         loginPage.iniciarSesion("Orianna@gmail.com", "1234");
-        browser.wait("#swal2-html-container").css();
-        browser.find().css("button.swal2-confirm").click();
+
+        sweetAlert.obtenerMensaje();
+        sweetAlert.confirmar();
+
         CrearTesterPage testerPage = new CrearTesterPage(browser);
         testerPage.accederCrearTester();
-        testerPage.formularioTester("Victor", "Rivero", "Victor@gmail.com",
-                "Uruguay", "1234");
-        testerPage.elegirTipoTester("Senior");
+        testerPage.formularioTester(nombre, apellido, correo,
+                pais, contraseña);
+        testerPage.elegirTipoTester(tipoTester);
         testerPage.enviarForm();
-        browser.wait("#swal2-html-container").css();
+
+        sweetAlert.obtenerMensaje();
+        sweetAlert.confirmar();
         EliminarTesterPage eliminarPage = new EliminarTesterPage(browser);
         eliminarPage.accederVerUsuarios();
-        eliminarPage.seleccionarTester("Victor@gmail.com");
-        eliminarPage.confirmarEliminacion();
-        browser.wait("#swal2-html-container").css();
-        String mensajeObtenido = browser.find().css("#swal2-html-container").getText();
+        eliminarPage.seleccionarTester(correo);
+        sweetAlert.confirmar();
+
+
+        String mensajeObtenido = sweetAlert.obtenerMensaje();
+
         IVerify verificador = IVerify.create();
         verificador.verify("Usuario eliminado.", mensajeObtenido,
                 "El mensaje no es el esperado");
-        browser.find().css("button.swal2-confirm").click();
+        sweetAlert.confirmar();
     }
 }

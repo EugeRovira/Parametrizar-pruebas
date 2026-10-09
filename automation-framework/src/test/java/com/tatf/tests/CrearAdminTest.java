@@ -4,10 +4,12 @@ import com.tatf.core.browser.BrowserFactory;
 import com.tatf.core.browser.IBrowser;
 import com.tatf.pages.HomeAdminCESPage;
 import com.tatf.pages.RegistroAdminPage;
+import com.tatf.pages.SweetAlertComponent;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 import com.tatf.core.verification.IVerify;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 
 public class CrearAdminTest {
@@ -23,18 +25,21 @@ public class CrearAdminTest {
          BrowserFactory.quitBrowser();
     }
 
-    @Test
-    void CrearAdmin() {
+    @ParameterizedTest
+    @CsvFileSource(resources = "/datos_admin.csv")
+    void CrearAdmin(String nombre, String apellido, String correo,
+                    String contraseña, String repetirContraseña, String pais) {
         HomeAdminCESPage homePage = new HomeAdminCESPage(browser);
         homePage.accederAdminCES(System.getenv("ADMINCES_PASSWORD"));
         homePage.accederRegistro();
         RegistroAdminPage registroPage = new RegistroAdminPage(browser);
-        registroPage.FormularioAdmin("Orianna", "Castro",
-                "Orianna@gmail.com", "1234", "1234", "Uruguay");
+        registroPage.FormularioAdmin(nombre, apellido,
+                correo, contraseña, repetirContraseña, pais);
         registroPage.enviarForm();
 
-        browser.wait("#swal2-html-container").css();
-        String mensajeObtenido = browser.find().css("#swal2-html-container").getText();
+        SweetAlertComponent sweetAlert = new SweetAlertComponent(browser);
+        String mensajeObtenido = sweetAlert.obtenerMensaje();
+
         IVerify verificador = IVerify.create();
         verificador.verify("Usuario creado.", mensajeObtenido, "El mensaje no es el esperado");
     }

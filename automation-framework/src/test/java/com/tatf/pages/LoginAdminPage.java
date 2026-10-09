@@ -4,6 +4,9 @@ import com.tatf.core.browser.IBrowser;
 
 public class LoginAdminPage {
     private IBrowser browser;
+    private String correoSelector = "input[name=inputEmail]";
+    private String passwordSelector = "input[name=inputPassword]";
+    private String botonLoginSelector = "button.btn-orange-ces.rounded-end-pill";
 
 
     public LoginAdminPage(IBrowser browser) {
@@ -11,8 +14,8 @@ public class LoginAdminPage {
     }
 
     public void iniciarSesion(String Correo, String Password) {
-        browser.find().css("input[name=inputEmail]").write(Correo);
-        browser.find().css("input[name=inputPassword]").write(Password);
-        browser.find().css("button.btn-orange-ces.rounded-end-pill").click();
+        browser.find().css(correoSelector).write(Correo);
+        browser.find().css(passwordSelector).write(Password);
+        browser.find().css(botonLoginSelector).click();
     }
 }
